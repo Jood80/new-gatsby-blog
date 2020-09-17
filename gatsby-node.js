@@ -3,5 +3,49 @@
  *
  * See: https://www.gatsbyjs.org/docs/node-apis/
  */
+const path = require("path");
 
-// You can delete this file if you're not using it
+const { createFilePath } = require(`gatsby-source-filesystem`);
+
+exports.onCreateNode = ({ node, getNode, actions }) => {
+  const { createNodeField } = actions;
+
+  if (node.internal.type === "MarkdownRemark") {
+    // slug= route
+    const slug = createFilePath({ node, getNode });
+    createNodeField({
+      node,
+      name: `slug`,
+      value: slug,
+    });
+  }
+};
+
+exports.createPages = ({ graphql, actions }) => {
+  // create pages based on an action
+  const { createPage } = actions;
+
+  return graphql(`
+    {
+      allMarkdownRemark {
+        edges {
+          node {
+            fields {
+              slug
+            }
+          }
+        }
+      }
+    }
+  `).then((result) => {
+    result.data.allMarkdownRemark.edges.forEach(({ node }) => {
+      createPage({
+        path: node.fields.slug,
+        component: path.resolve(`./src/templates/blog-post.js`),
+        context: {
+          slug: node.fields.slug,
+        },
+      });
+    });
+  });
+};

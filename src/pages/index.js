@@ -1,9 +1,10 @@
 import React from "react";
 import { graphql, Link } from "gatsby";
-
+import styled from "styled-components";
 import Layout from "../components/layout";
 import Image from "../components/image";
 import SEO from "../components/seo";
+
 
 export default ({ data }) => (
   <Layout>
@@ -30,7 +31,7 @@ export default ({ data }) => (
 
 export const query = graphql`
   query {
-    allMarkdownRemark {
+    allMarkdownRemark(sort: { fields: [frontmatter___date], order: DESC }) {
       edges {
         node {
           id
@@ -39,6 +40,9 @@ export const query = graphql`
             description
             title
             date
+          }
+          fields {
+            slug
           }
           excerpt
         }
